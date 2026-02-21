@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: '*' }));
+app.use(express.json({ limit: '10mb' }));
 
 app.post('/generate', async (req, res) => {
   try {
@@ -19,11 +19,11 @@ app.post('/generate', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'API call failed' });
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 app.get('/', (req, res) => res.send('CramOS API running'));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+app.listen(process.env.PORT || 3000);
