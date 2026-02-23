@@ -1,0 +1,42 @@
+exports.handler = async (event) => {
+  try {
+    const { goal } = JSON.parse(event.body);
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.CLAUDE_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 500,
+        messages: [
+          {
+            role: "user",
+            content: `Create a study plan for: ${goal}`
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        plan: data.content[0].text
+      })
+    };
+
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Server error",
+        details: error.message
+      })
+    };
+  }
+};
